@@ -12,10 +12,9 @@ Model name is converted to lowercase for the collection name:
 """
 
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, List, Dict
 
-# Example schemas (replace with your own):
-
+# Users
 class User(BaseModel):
     """
     Users collection schema
@@ -27,6 +26,7 @@ class User(BaseModel):
     age: Optional[int] = Field(None, ge=0, le=120, description="Age in years")
     is_active: bool = Field(True, description="Whether user is active")
 
+# Products
 class Product(BaseModel):
     """
     Products collection schema
@@ -37,9 +37,28 @@ class Product(BaseModel):
     price: float = Field(..., ge=0, description="Price in dollars")
     category: str = Field(..., description="Product category")
     in_stock: bool = Field(True, description="Whether product is in stock")
+    sku: Optional[str] = Field(None, description="Stock keeping unit")
+    image_url: Optional[str] = Field(None, description="Image URL")
 
-# Add your own schemas here:
-# --------------------------------------------------
+# Categories
+class Category(BaseModel):
+    name: str = Field(..., description="Category name")
+    description: Optional[str] = Field(None, description="Category description")
+    is_active: bool = Field(True, description="Category active status")
+
+# Blogs
+class Blog(BaseModel):
+    title: str = Field(..., description="Blog title")
+    content: str = Field(..., description="Blog content (markdown or HTML)")
+    author: str = Field(..., description="Author name")
+    is_published: bool = Field(False, description="Publish status")
+
+# Sale configuration (single document collection)
+class SaleConfig(BaseModel):
+    global_sale_active: bool = Field(False, description="Whether global sale is active")
+    global_discount_percent: float = Field(0, ge=0, le=100, description="Global discount percent")
+    # Map of product_id -> discount percent
+    product_sales: Dict[str, float] = Field(default_factory=dict, description="Per-product sale percentages")
 
 # Note: The Flames database viewer will automatically:
 # 1. Read these schemas from GET /schema endpoint
